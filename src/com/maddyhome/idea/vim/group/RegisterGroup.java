@@ -120,6 +120,9 @@ public class RegisterGroup extends AbstractActionGroup {
     // Null register doesn't get saved
     if (lastRegister == '_') return true;
 
+    // Whitespace also not saved
+    if ( text.matches("\\s*") ) return true;
+
     int start = range.getStartOffset();
     int end = range.getEndOffset();
     // Normalize the start and end
@@ -145,16 +148,17 @@ public class RegisterGroup extends AbstractActionGroup {
       else {
         registers.put(lreg, new Register(lreg, type, text));
         if (logger.isDebugEnabled()) logger.debug("register '" + register + "' contains: \"" + text + "\"");
+        if (logger.isDebugEnabled()) logger.debug("register '" + register + "' contains: \"" + text + "\"");
       }
-    }
-    else if (register == '*' || register == '+') {
-      ClipboardHandler.setClipboardText(text);
     }
     // Put the text in the specified register
     else {
       registers.put(register, new Register(register, type, text));
       if (logger.isDebugEnabled()) logger.debug("register '" + register + "' contains: \"" + text + "\"");
     }
+
+    // Add to clipboard
+    ClipboardHandler.setClipboardText(text);
 
     // Also add it to the default register if the default wasn't specified
     if (register != REGISTER_DEFAULT && ".:/".indexOf(register) == -1) {
@@ -221,16 +225,8 @@ public class RegisterGroup extends AbstractActionGroup {
       r = Character.toLowerCase(r);
     }
 
-    Register reg = null;
-    if (r == '*' || r == '+') {
-      String text = ClipboardHandler.getClipboardText();
-      if (text != null) {
-        reg = new Register(r, SelectionType.CHARACTER_WISE, text);
-      }
-    }
-    else {
-      reg = registers.get(new Character(r));
-    }
+    Register reg;
+    reg = registers.get(new Character(r));
 
     return reg;
   }
